@@ -5,7 +5,7 @@ import {
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
-    
+
     SidebarHeader,
     SidebarFooter,
 } from "@/components/ui/sidebar";
@@ -22,9 +22,9 @@ import type { BlogFetched } from "@/types/blogdata";
 export function AppSidebar() {
 
     const [isopen, setIsopen] = useState(false);
-    
-    const [searchQuery, setSearchQuery] = useState(""); 
-    
+
+    const [searchQuery, setSearchQuery] = useState("");
+
     const { data, isPending, error } = useQuery<BlogFetched[]>({
         queryKey: ["blogs"],
         queryFn: async () => {
@@ -36,15 +36,19 @@ export function AppSidebar() {
 
     const blogs = data ?? [];
 
-    const filteredBlogs = blogs.filter((blog: any) => 
-        blog.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        blog.description.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredBlogs = blogs
+        .filter((blog: BlogFetched) =>
+            blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            blog.description.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .sort((a: BlogFetched, b: BlogFetched) => 
+            new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
 
     if (error) {
         return (
             <>
-               <SidebarError /> 
+                <SidebarError />
             </>
         );
     }
@@ -52,7 +56,7 @@ export function AppSidebar() {
     if (isPending) {
         return (
             <>
-            <AppSidebarLoading />
+                <AppSidebarLoading />
             </>
         );
     }
@@ -62,7 +66,7 @@ export function AppSidebar() {
             <Sidebar collapsible="icon" className="bg-slate-300">
                 <SidebarHeader className="p-4 border-rounded-b bg-slate-700 text-white">
                     <h2 className="text-xl font-bold tracking-tight px-2">CA monk</h2>
-                    <input 
+                    <input
                         type="text"
                         placeholder="Search blog"
                         value={searchQuery}
@@ -75,10 +79,10 @@ export function AppSidebar() {
                     <SidebarGroup className="bg-gray-200">
                         <SidebarGroupLabel className="text-lg text-black"><h1>Latest Articles</h1></SidebarGroupLabel>
                         <SidebarGroupContent className="">
-                            {filteredBlogs.map((blog : any) => (
-                                <BlogCard blog={blog} key={blog.id}/>
+                            {filteredBlogs.map((blog: any) => (
+                                <BlogCard blog={blog} key={blog.id} />
                             ))}
-                            
+
                             {filteredBlogs.length === 0 && (
                                 <div className="p-4 text-sm text-gray-500 text-center">
                                     No blogs found.
@@ -89,7 +93,7 @@ export function AppSidebar() {
                     </SidebarGroup>
                 </SidebarContent>
                 <SidebarFooter>
-                    <Button size="lg" variant="outline" className="bg-slate-600 hover:bg-slate-700 text-white hover:text-white text-lg " onClick={()=>setIsopen(true)}>Publish</Button>
+                    <Button size="lg" variant="outline" className="bg-slate-600 hover:bg-slate-700 text-white hover:text-white text-lg " onClick={() => setIsopen(true)}>Publish</Button>
                 </SidebarFooter>
             </Sidebar>
             <PublishModal isOpen={isopen} onclose={() => setIsopen(false)} />
